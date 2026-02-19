@@ -182,7 +182,7 @@ function Enter() {
 
       {showHint && (
         <div style={styles.hintBox}>
-          <p>🤫 <strong>Master says:</strong> "The door opens when force and distance work in harmony..."</p>
+          <p>🤫 <strong>Master says:</strong> "Only Cowards take a hint, Warriors take their Shot"</p>
           <p>⚡ Consider the balance between strength and precision</p>
         </div>
       )}
