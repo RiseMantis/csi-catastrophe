@@ -185,7 +185,7 @@ function TrainingPanel({ stats, onComplete }) {
     if (trainingPhase !== "jumping" || !gameRunning) return;
 
     const collision = obstacles.some(
-      (obs) => Math.abs(obs.x - 50) < 20 && obs.opacity > 0.8
+  (obs) => Math.abs(obs.x - 50) < 20 && obs.opacity > 0.8
     );
 
     if (!collision) {
@@ -334,12 +334,13 @@ function TrainingPanel({ stats, onComplete }) {
         </div>
       )}
 
+      <>
       {/* OBSTACLE JUMPING GAME */}
       {trainingPhase === "jumping" && gameRunning && (
         <div style={styles.gameContainer}>
           <div style={styles.statsBar}>
             <span>🚀 Jumps: {obstacleJumps}/10</span>
-            <span>Press SPACE to jump</span>
+            <span style={{ marginLeft: "20px" }}>Press SPACE to jump</span>
             <button
               style={styles.cancelButton}
               onClick={() => {
@@ -353,17 +354,18 @@ function TrainingPanel({ stats, onComplete }) {
 
           <div
             style={styles.jumpingGameArea}
+            tabIndex={0}
             onKeyDown={(e) => {
               if (e.code === "Space") {
                 handleJump();
               }
             }}
-            tabIndex="0"
+            autoFocus
           >
             {/* Player */}
             <div style={styles.player}>🐼</div>
 
-            {/* Obstacles - get fader as they approach */}
+            {/* Obstacles */}
             {obstacles.map((obs) => (
               <div
                 key={obs.id}
@@ -379,12 +381,17 @@ function TrainingPanel({ stats, onComplete }) {
           </div>
 
           {obstacleJumps >= 10 && (
-            <button style={styles.completeButton} onClick={() => setTrainingPhase("selection")}>
+            <button
+              style={styles.completeButton}
+              onClick={() => setTrainingPhase("selection")}
+            >
               ✅ Jumping Training Complete!
             </button>
           )}
         </div>
       )}
+    </>
+
 
       {/* TRAINING SUMMARY */}
       {trainingPhase === "selection" && lastGameType && (

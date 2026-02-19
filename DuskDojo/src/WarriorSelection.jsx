@@ -62,9 +62,9 @@ function WarriorSelection({ onSelect }) {
         const distY = centerY - mousePos.y;
         const distance = Math.sqrt(distX * distX + distY * distY);
 
-        if (distance < 120) {
+        if (distance < 250) {
           const angle = Math.atan2(distY, distX);
-          const pushDistance = Math.max(0, 120 - distance) / 1.5;
+          const pushDistance = Math.max(0, 250 - distance);
 
           const newOffset = {
             x: Math.cos(angle) * pushDistance,

@@ -22,6 +22,9 @@ function ProgressDashboard({ stats }) {
         if (distance < lampRadius) {
           setFoundBackButton(true);
         }
+        else{
+          setFoundBackButton(false);
+        }
       }
     };
 
@@ -129,7 +132,7 @@ function ProgressDashboard({ stats }) {
         id="back-button"
         style={{
           ...styles.backButton,
-          opacity: foundBackButton ? 1 : 0.1,
+          opacity: foundBackButton ? 0.5 : 0,
           cursor: foundBackButton ? "pointer" : "default",
           transform: foundBackButton ? "scale(1)" : "scale(0.8)",
         }}
@@ -146,10 +149,10 @@ function ProgressDashboard({ stats }) {
       {/* Instructions */}
       <div style={styles.instructionBox}>
         <p style={styles.instructionText}>
-          💡 Use your mouse as a lamp to illuminate the darkness and find your statistics...
+          💡 Oh God where are the lights... Work with this lamp in the meanwhile
         </p>
         <p style={styles.instructionText}>
-          🔍 And if you can find the hidden button... you may escape!
+          🔍 Its way too dark, I think we should go back
         </p>
       </div>
 
@@ -198,7 +201,7 @@ const styles = {
     left: "50%",
     transform: "translateX(-50%)",
     textAlign: "center",
-    opacity: 0.3,
+    opacity: 1,
     pointerEvents: "none",
   },
   title: {
@@ -229,7 +232,7 @@ const styles = {
     padding: "25px",
     borderRadius: "0px",
     boxShadow: "0 0 30px rgba(255, 215, 0, 0.1)",
-    opacity: 0.15,
+    opacity: 1,
     transition: "opacity 0.2s ease-out",
   },
   cardTitle: {
@@ -282,7 +285,7 @@ const styles = {
     margin: "5px 0",
     fontSize: "13px",
     color: "#ffd700",
-    opacity: 0.7,
+    opacity: 1,
   },
   coordBox: {
     position: "fixed",
@@ -297,21 +300,6 @@ const styles = {
   },
   coordText: {
     margin: 0,
-  },
-  expMeterContainer: {
-    width: "100%",
-    height: "20px",
-    background: "rgba(0, 0, 0, 0.5)",
-    border: "2px solid #ffd700",
-    marginTop: "10px",
-    overflow: "hidden",
-    position: "relative",
-  },
-  expMeterBar: {
-    height: "100%",
-    background: "linear-gradient(90deg, #c41e3a, #ffd700)",
-    transition: "width 0.3s ease",
-    boxShadow: "0 0 10px rgba(255, 215, 0, 0.6)",
   },
 };
 
@@ -334,7 +322,7 @@ styleSheet.textContent = `
   }
 
   button:disabled {
-    opacity: 0.1 !important;
+    opacity: 0 !important;
     cursor: default !important;
   }
 `;
