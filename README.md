@@ -50,7 +50,7 @@ npm install
 npm run dev
 ```
 
-Your browser will open to a page that will immediately make you question your life choices.
+And so it begins
 
 ### Building for Production
 
@@ -125,12 +125,11 @@ This project is deliberately licensed under Creative Chaos (use AT YOUR OWN RISK
 ---
 
 **Warning**: Extended use of DuskDojo may result in:
-- Eye strain
-- Existential dread
-- Questioning humanity's choices
-- Sudden desire to study design principles
-- Uncontrollable eye twitching
+- Eye strains
+- Inability to judge further submissions
+- Anger Issues
+- Extended recovery stage, not the best place to be in for the CSI hackathon
 
-*May the Po guide you... but probably won't. Our navigation is too confusing.*
+*Channel your inner kin and make best use of your senses, though I doubt that is enough for you to control your rage*
 
 🥋 **Welcome to Dusk Dojo** 🥋
