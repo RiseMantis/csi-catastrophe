@@ -23,9 +23,12 @@ function TrainingPanel({ stats, onComplete }) {
   const [obstacleJumps, setObstacleJumps] = useState(0);
   const [obstacles, setObstacles] = useState([]);
   const [playerPos, setPlayerPos] = useState(0);
+  const [playerJumpHeight, setPlayerJumpHeight] = useState(0);
+  const [playerIsJumping, setPlayerIsJumping] = useState(false);
   const [gameRunning, setGameRunning] = useState(false);
   const [loadedWords, setLoadedWords] = useState([]);
   const afkTimerRef = useRef(null);
+  const jumpAnimationRef = useRef(null);
 
   // Load words from public folder
   useEffect(() => {
@@ -170,31 +173,79 @@ function TrainingPanel({ stats, onComplete }) {
         return prev
           .map((obs) => ({
             ...obs,
-            x: obs.x - 5,
+            x: obs.x - 8,
             opacity: obs.x > 30 ? 1 : obs.x > 10 ? 0.3 : 0,
           }))
-          .filter((obs) => obs.x > -50);
+          .filter((obs) => obs.x > -20);
       });
     }, 30);
 
     return () => clearInterval(interval);
   }, [trainingPhase, gameRunning]);
 
+  // Jump animation
+  useEffect(() => {
+    if (!playerIsJumping) return;
+
+    let jumpFrame = 0;
+    const jumpDuration = 400; // milliseconds
+    const jumpPeakHeight = 150; // pixels
+    const startTime = Date.now();
+
+    const animateJump = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / jumpDuration, 1);
+      
+      // Quadratic easing for jump arc
+      let height;
+      if (progress < 0.5) {
+        // Up phase
+        height = (progress * 2) * (progress * 2) * jumpPeakHeight;
+      } else {
+        // Down phase
+        const downProgress = (progress - 0.5) * 2;
+        height = (1 - downProgress * downProgress) * jumpPeakHeight;
+      }
+
+      setPlayerJumpHeight(height);
+
+      if (progress < 1) {
+        jumpAnimationRef.current = requestAnimationFrame(animateJump);
+      } else {
+        setPlayerJumpHeight(0);
+        setPlayerIsJumping(false);
+      }
+    };
+
+    jumpAnimationRef.current = requestAnimationFrame(animateJump);
+
+    return () => {
+      if (jumpAnimationRef.current) {
+        cancelAnimationFrame(jumpAnimationRef.current);
+      }
+    };
+  }, [playerIsJumping]);
+
   // Jump detection
   const handleJump = () => {
-    if (trainingPhase !== "jumping" || !gameRunning) return;
+    if (trainingPhase !== "jumping" || !gameRunning || playerIsJumping) return;
 
-    const collision = obstacles.some(
-  (obs) => Math.abs(obs.x - 50) < 20 && obs.opacity > 0.8
-    );
+    setPlayerIsJumping(true);
 
-    if (!collision) {
-      setObstacleJumps((prev) => prev + 1);
-    } else {
-      alert("❌ HIT BY OBSTACLE! Training Failed!");
-      setGameRunning(false);
-      setTrainingPhase("selection");
-    }
+    // Check collision at peak height (during jump)
+    setTimeout(() => {
+      const collision = obstacles.some(
+        (obs) => Math.abs(obs.x - 50) < 20 && obs.opacity > 0.8
+      );
+
+      if (!collision) {
+        setObstacleJumps((prev) => prev + 1);
+      } else {
+        alert("❌ HIT BY OBSTACLE! Training Failed!");
+        setGameRunning(false);
+        setTrainingPhase("selection");
+      }
+    }, 200); // Check at peak height
   };
 
   // Start training
@@ -357,13 +408,22 @@ function TrainingPanel({ stats, onComplete }) {
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.code === "Space") {
+                e.preventDefault();
                 handleJump();
               }
             }}
             autoFocus
           >
             {/* Player */}
-            <div style={styles.player}>🐼</div>
+            <div
+              style={{
+                ...styles.player,
+                bottom: `${20 + playerJumpHeight}px`,
+                transition: playerIsJumping ? "none" : "bottom 0.1s ease",
+              }}
+            >
+              🐼
+            </div>
 
             {/* Obstacles */}
             {obstacles.map((obs) => (
