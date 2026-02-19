@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Enter() {
   const navigate = useNavigate();
@@ -9,9 +9,15 @@ function Enter() {
   const [doorRotation, setDoorRotation] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [targetTorque, setTargetTorque] = useState(2500);
 
-  const TARGET_TORQUE = 1724; // Sweet spot: force 50 × distance 50
-  const TORQUE_TOLERANCE = 150;
+  useEffect(() => {
+    // Generate random target torque between 1500 and 3500
+    const randomTorque = Math.floor(Math.random() * 2000) + 1500;
+    setTargetTorque(randomTorque);
+  }, []);
+
+  const TORQUE_TOLERANCE = 2;
 
   const currentTorque = force * distance;
 
@@ -19,8 +25,8 @@ function Enter() {
     setAttempts(attempts + 1);
     
     // Check if torque is correct
-    if (currentTorque >= TARGET_TORQUE - TORQUE_TOLERANCE && 
-        currentTorque <= TARGET_TORQUE + TORQUE_TOLERANCE) {
+    if (currentTorque >= targetTorque - TORQUE_TOLERANCE && 
+        currentTorque <= targetTorque + TORQUE_TOLERANCE) {
       setDoorOpen(true);
       setDoorRotation(-90);
       setTimeout(() => {
@@ -34,8 +40,8 @@ function Enter() {
     }
   };
 
-  const torquePercentage = (currentTorque / TARGET_TORQUE) * 100;
-  const isTorqueClose = Math.abs(currentTorque - TARGET_TORQUE) < 1;
+  const torquePercentage = (currentTorque / targetTorque) * 100;
+  const isTorqueClose = Math.abs(currentTorque - targetTorque) < 1;
 
   return (
     <div style={styles.container}>
@@ -129,7 +135,7 @@ function Enter() {
       {/* Torque Display */}
       <div style={styles.torqueBox}>
         <h3 style={styles.torqueTitle}>⚙️ Current Torque: {currentTorque.toFixed(0)} N·cm</h3>
-        <p style={styles.torqueTarget}>Target Torque: ~{TARGET_TORQUE} N·cm</p>
+        <p style={styles.torqueTarget}>Target Torque: nearly {targetTorque} N·cm</p>
         
         {/* Torque Bar */}
         <div style={styles.torqueBarContainer}>

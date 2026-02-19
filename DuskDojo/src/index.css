@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'SimSun', 'Noto Sans SC', serif;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d1b1b 50%, #1a2d2d 100%);
+  background-attachment: fixed;
+  color: #ffd700;
+  line-height: 1.6;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c41e3a 0%, #ffd700 50%, #00d000 100%);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff0000 0%, #ffed4e 50%, #00ff00 100%);
+}
+
+/* Slider thumb styles */
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  border: 2px solid #c41e3a;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  border: 2px solid #c41e3a;
+}
+
+/* Button hover effects */
+button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.8) !important;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 function WarriorSelection({ onSelect }) {
@@ -7,6 +7,8 @@ function WarriorSelection({ onSelect }) {
   const [showTakenPopup, setShowTakenPopup] = useState(false);
   const [lastAttemptedWarrior, setLastAttemptedWarrior] = useState(null);
   const [showPoOption, setShowPoOption] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [hoveredWarriorId, setHoveredWarriorId] = useState(null);
 
   // These are intentionally confusing - they're not the actual characters
   const warriors = [
@@ -17,6 +19,16 @@ function WarriorSelection({ onSelect }) {
     { id: 5, name: "graceful-monkey", emoji: "🐸", displayName: "Option 5" },
   ];
 
+  // Track mouse movement
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   const handleSelection = (warrior) => {
     setLastAttemptedWarrior(warrior);
     setAttemptedWarriors([...attemptedWarriors, warrior.id]);
@@ -25,7 +37,6 @@ function WarriorSelection({ onSelect }) {
 
   const handlePopupOk = () => {
     setShowTakenPopup(false);
-    
     // Check if all warriors have been attempted
     if (attemptedWarriors.length === warriors.length) {
       setShowPoOption(true);
@@ -35,6 +46,61 @@ function WarriorSelection({ onSelect }) {
   const handlePoSelection = () => {
     onSelect({ id: 0, name: "po", emoji: "🐼", displayName: "Po" });
     navigate("/training");
+  };
+
+  // WarriorCard component to handle individual card movement
+  const WarriorCard = ({ warrior, offset, isAttempted, isDisabled }) => {
+    const cardRef = useRef(null);
+
+    useEffect(() => {
+      if (cardRef.current && hoveredWarriorId === warrior.id) {
+        const rect = cardRef.current.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const distX = centerX - mousePos.x;
+        const distY = centerY - mousePos.y;
+        const distance = Math.sqrt(distX * distX + distY * distY);
+
+        if (distance < 120) {
+          const angle = Math.atan2(distY, distX);
+          const pushDistance = Math.max(0, 120 - distance) / 1.5;
+
+          const newOffset = {
+            x: Math.cos(angle) * pushDistance,
+            y: Math.sin(angle) * pushDistance,
+          };
+
+          cardRef.current.style.transform = `translate(${newOffset.x}px, ${newOffset.y}px)`;
+        } else {
+          cardRef.current.style.transform = "translate(0px, 0px)";
+        }
+      }
+    }, [mousePos, hoveredWarriorId]);
+
+    return (
+      <div
+        key={warrior.id}
+        ref={cardRef}
+        style={{
+          ...styles.warriorCard,
+          opacity: isAttempted && !showPoOption ? 0.5 : 1,
+          border: isAttempted ? "3px solid #999" : "3px solid #ffd700",
+          pointerEvents: isDisabled ? "none" : "auto",
+          cursor: isDisabled ? "not-allowed" : "pointer",
+          transition: "transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        }}
+        onMouseEnter={() => setHoveredWarriorId(warrior.id)}
+        onMouseLeave={() => setHoveredWarriorId(null)}
+        onClick={() => !isAttempted && handleSelection(warrior)}
+      >
+        <div style={styles.silhouette}>{warrior.emoji}</div>
+        <p style={styles.warriorName}>{warrior.displayName}</p>
+        <p style={styles.warriorType}>
+          {isAttempted ? "❌ TAKEN" : "???"}
+        </p>
+      </div>
+    );
   };
 
   return (
@@ -52,32 +118,12 @@ function WarriorSelection({ onSelect }) {
       {/* Warrior Selection Grid */}
       <div style={styles.grid}>
         {warriors.map((warrior) => (
-          <div
+          <WarriorCard
             key={warrior.id}
-            style={{
-              ...styles.warriorCard,
-              opacity:
-                attemptedWarriors.includes(warrior.id) && !showPoOption ? 0.5 : 1,
-              border: attemptedWarriors.includes(warrior.id)
-                ? "3px solid #999"
-                : "3px solid #ffd700",
-              pointerEvents:
-                attemptedWarriors.includes(warrior.id) && !showPoOption
-                  ? "none"
-                  : "auto",
-              cursor:
-                attemptedWarriors.includes(warrior.id) && !showPoOption
-                  ? "not-allowed"
-                  : "pointer",
-            }}
-            onClick={() => !attemptedWarriors.includes(warrior.id) && handleSelection(warrior)}
-          >
-            <div style={styles.silhouette}>{warrior.emoji}</div>
-            <p style={styles.warriorName}>{warrior.displayName}</p>
-            <p style={styles.warriorType}>
-              {attemptedWarriors.includes(warrior.id) ? "❌ TAKEN" : "???"}
-            </p>
-          </div>
+            warrior={warrior}
+            isAttempted={attemptedWarriors.includes(warrior.id)}
+            isDisabled={attemptedWarriors.includes(warrior.id) && !showPoOption}
+          />
         ))}
       </div>
 
