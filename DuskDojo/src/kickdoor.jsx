@@ -190,7 +190,7 @@ function Enter() {
       {/* Physics Note */}
       <div style={styles.noteBox}>
         <p style={styles.note}>
-          ⚠️ <strong>"There is no force, there is no distance, there is only... physics"</strong> - A Very Confused Master
+          ⚠️ <strong>"There is no force, there is no distance, there is only... microtransactions baby"</strong> - A Very Confused Master
         </p>
       </div>
     </div>
