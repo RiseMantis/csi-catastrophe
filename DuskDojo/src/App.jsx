@@ -24,6 +24,7 @@ function App() {
       punchPower: 0,
       dodgeChance: 0,
       innerPeace: 0,
+      focusedMind: 0,
     }
   });
 

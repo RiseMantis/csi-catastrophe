@@ -43,6 +43,16 @@ function SkillTree({ stats, onUpgrade }) {
       description: "Achieve ultimate harmony... at great inconvenience.",
       cost: 150,
     },
+    {
+      id: "focusedMind",
+      name: "Focused Mind",
+      icon: "🧠",
+      benefit: "⏸️ No AFK Timer in Typing Game",
+      drawback: "⚠️ Cannot use Backspace",
+      description:
+        "Achieve laser focus... but you must type perfectly, no fixing mistakes.",
+      cost: 100,
+    },
   ];
 
   const handleUpgrade = (skillId) => {

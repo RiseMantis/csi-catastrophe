@@ -1,20 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-const fs = require("fs");
-var bagOfWords;
-
-fs.readFile("DuskDojo/public/words_alpha.txt", "utf-8", (err, data) => {
-  if (err) {
-    console.log("File read mei Haga");
-    console.error(err);
-  } else {
-    bagOfWords = data.split("\n"); // split into array of words
-    console.log("Loaded words:", bagOfWords.length);
-    console.log("Sample:", bagOfWords.slice(0, 20)); // preview first 20
-  }
-});
-
 function TrainingPanel({ stats, onComplete }) {
   const EXP_THRESHOLD = 300;
   const navigate = useNavigate();
@@ -38,12 +24,24 @@ function TrainingPanel({ stats, onComplete }) {
   const [obstacles, setObstacles] = useState([]);
   const [playerPos, setPlayerPos] = useState(0);
   const [gameRunning, setGameRunning] = useState(false);
+  const [loadedWords, setLoadedWords] = useState([]);
   const afkTimerRef = useRef(null);
 
-  // Word pool with normal and confusing words
+  // Load words from public folder
+  useEffect(() => {
+    fetch('/words_alpha.txt')
+      .then(response => response.text())
+      .then(data => {
+        const words = data.split('\n').map(word => word.trim().toLowerCase()).filter(word => word.length > 3 && word.length < 15);
+        setLoadedWords(words);
+      })
+      .catch(err => console.error('Error loading words:', err));
+  }, []);
+
+  // Word pool with words from file and confusing words
   const generateWordPool = () => {
-    const normalWords = bagOfWords;
     const confusingWords = ["xzkd", "pqvw", "jxmn", "bfhp", "zqkl"];
+    const normalWords = loadedWords.length > 0 ? loadedWords : ["master", "warrior", "dojo", "training", "focus", "strength"];
     
     let pool = [];
     for (let i = 0; i < 15; i++) {
@@ -65,13 +63,19 @@ function TrainingPanel({ stats, onComplete }) {
     
     if (key === " " || key === "Enter") {
       e.preventDefault();
-      if (typedWord === wordsList[currentWordIndex]) {
+      if (currentWordIndex >= wordsList.length) return;
+      
+      const currentWord = (wordsList[currentWordIndex] || "").toLowerCase().trim();
+      const typedTrimmed = typedWord.toLowerCase().trim();
+      
+      if (typedTrimmed === currentWord && currentWord.length > 0) {
+        // Correct word typed
         setCorrectWords((prev) => prev + 1);
         setCurrentWordIndex((prev) => prev + 1);
         setTypedWord("");
-      } else if (typedWord.length > 0) {
+      } else if (typedTrimmed.length > 0) {
         // Extend word on mistake
-        const newWord = wordsList[currentWordIndex] + String.fromCharCode(97 + Math.floor(Math.random() * 26));
+        const newWord = currentWord + String.fromCharCode(97 + Math.floor(Math.random() * 26));
         setWordsList((prev) => {
           const updated = [...prev];
           updated[currentWordIndex] = newWord;
@@ -93,6 +97,7 @@ function TrainingPanel({ stats, onComplete }) {
     const timer = setInterval(() => {
       setTypingGameTimer((prev) => {
         if (prev <= 1) {
+          // Game ends, show completion
           setLastGameType("typing");
           setTrainingPhase("selection");
           return 0;
@@ -197,6 +202,11 @@ function TrainingPanel({ stats, onComplete }) {
     setTrainingPhase(type);
     setLastGameType(null);
     if (type === "punching") {
+      if (loadedWords.length === 0) {
+        alert("Loading words... please try again in a moment.");
+        setTrainingPhase("selection");
+        return;
+      }
       const pool = generateWordPool();
       setWordsList(pool);
       setCurrentWordIndex(0);
@@ -408,11 +418,6 @@ function TrainingPanel({ stats, onComplete }) {
                   </button>
                 )}
               </>
-            )}
-            {punchCount >= 20 && (
-              <p style={styles.progressText}>
-                🤜 Punching Bag: MASTERED
-              </p>
             )}
             {obstacleJumps >= 10 && (
               <p style={styles.progressText}>
