@@ -119,7 +119,7 @@ function TrainingPanel({ stats, onComplete }) {
     afkTimerRef.current = setInterval(() => {
       setAfkTimer((prev) => {
         const newTimer = prev + 1;
-        if (newTimer >= 5) {
+        if (newTimer >= 3) {
           setIsAFK(true);
         }
         return newTimer;
@@ -151,12 +151,14 @@ function TrainingPanel({ stats, onComplete }) {
     if (trainingPhase !== "jumping" || !gameRunning) return;
 
     const interval = setInterval(() => {
+      const isHighObstacle = Math.random() > 0.5;
       setObstacles((prev) => [
         ...prev,
         {
           id: Math.random(),
           x: 100,
           opacity: 1,
+          isHigh: isHighObstacle,
         },
       ]);
     }, 800);
@@ -174,7 +176,7 @@ function TrainingPanel({ stats, onComplete }) {
           .map((obs) => ({
             ...obs,
             x: obs.x - 8,
-            opacity: obs.x > 30 ? 1 : obs.x > 10 ? 0.3 : 0,
+            opacity: obs.x > 100 ? 1 : obs.x > 30 ? 0.3 : 0,
           }))
           .filter((obs) => obs.x > -20);
       });
@@ -234,9 +236,18 @@ function TrainingPanel({ stats, onComplete }) {
 
     // Check collision at peak height (during jump)
     setTimeout(() => {
-      const collision = obstacles.some(
-        (obs) => Math.abs(obs.x - 50) < 20 && obs.opacity > 0.8
-      );
+      const collision = obstacles.some((obs) => {
+        // Check if obstacle is in player's path
+        if (Math.abs(obs.x - 50) >= 20 || obs.opacity <= 0.8) return false;
+        
+        if (obs.isHigh) {
+          // High obstacle: hit if not jumping high enough (need 120+ px jump)
+          return playerJumpHeight < 120;
+        } else {
+          // Low obstacle: hit if not jumping (need 50+ px jump)
+          return playerJumpHeight < 50;
+        }
+      });
 
       if (!collision) {
         setObstacleJumps((prev) => prev + 1);
@@ -433,6 +444,7 @@ function TrainingPanel({ stats, onComplete }) {
                   ...styles.obstacle,
                   left: `${obs.x}%`,
                   opacity: obs.opacity,
+                  top: obs.isHigh ? "25%" : "55%",
                 }}
               >
                 ▮
